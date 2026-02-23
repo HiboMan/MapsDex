@@ -423,12 +423,11 @@ class Admin(commands.Cog):
                 ephemeral=True,
             )
 
-    @app_commands.command()
-    @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
-    @log_admin_command()
+    @admin.command()
+    @checks.is_superuser()
     async def say(
         self,
-        interaction: discord.Interaction["BallsDexBot"],
+        ctx: commands.Context["BallsDexBot"],
         message: str,
         channel: discord.TextChannel | discord.Thread | None = None,
     ):
@@ -443,11 +442,11 @@ class Admin(commands.Cog):
             The channel or thread to send the message to. Defaults to current channel if not specified.
         """
         # Get target channel
-        target_channel = channel if channel else interaction.channel
+        target_channel = channel if channel else ctx.channel
         
         # Verify it's a valid messageable channel/thread
         if not isinstance(target_channel, (discord.TextChannel, discord.Thread)):
-            await interaction.response.send_message(
+            await ctx.send(
                 "Invalid channel type. Must be a text channel or thread.", ephemeral=True
             )
             return
@@ -458,29 +457,28 @@ class Admin(commands.Cog):
             # Get guild name safely (threads have parent channels)
             guild_name = target_channel.guild.name if hasattr(target_channel, 'guild') else "Unknown"
             
-            await interaction.response.send_message(
+            await ctx.send(
                 f"Message sent to {target_channel.mention} ({guild_name})", ephemeral=True
             )
         except discord.Forbidden:
-            await interaction.response.send_message(
+            await ctx.send(
                 f"Missing permissions to send messages in {target_channel.mention}", ephemeral=True
             )
         except Exception as e:
-            await interaction.response.send_message(
+            await ctx.send(
                 f"Failed to send message: {str(e)}", ephemeral=True
             )
-
-    @app_commands.command(name="broadcast", description="Send a broadcast message to all ball spawn channels")
-    @app_commands.checks.has_any_role(*settings.root_role_ids)
+'''
+    @admin.command(name="broadcast", description="Send a broadcast message to all ball spawn channels")
+    @checks.is_superuser()
     @app_commands.choices(broadcast_type=[
         app_commands.Choice(name="Text and Image", value="both"),
         app_commands.Choice(name="Text Only", value="text"),
         app_commands.Choice(name="Image Only", value="image")
     ])
-    @log_admin_command()
     async def broadcast(
         self, 
-        interaction: discord.Interaction["BallsDexBot"], 
+        ctx: commands.Context["BallsDexBot"], 
         broadcast_type: str,
         message: str | None = None,
         attachment: discord.Attachment | None = None,
@@ -488,22 +486,22 @@ class Admin(commands.Cog):
     ):
         """Send broadcast messages to all ball spawn channels"""
         if broadcast_type == "text" and not message:
-            await interaction.response.send_message("You must provide a message when selecting 'Text Only' mode.", ephemeral=True)
+            await ctx.send("You must provide a message when selecting 'Text Only' mode.", ephemeral=True)
             return
         if broadcast_type == "image" and not attachment:
-            await interaction.response.send_message("You must provide an image when selecting 'Image Only' mode.", ephemeral=True)
+            await ctx.send("You must provide an image when selecting 'Image Only' mode.", ephemeral=True)
             return
         if broadcast_type == "both" and not message and not attachment:
-            await interaction.response.send_message("You must provide a message or image when selecting 'Text and Image' mode.", ephemeral=True)
+            await ctx.send("You must provide a message or image when selecting 'Text and Image' mode.", ephemeral=True)
             return
 
         try:
             channels = await self.get_broadcast_channels()
             if not channels:
-                await interaction.response.send_message("No ball spawn channels are currently configured.", ephemeral=True)
+                await ctx.send("No ball spawn channels are currently configured.", ephemeral=True)
                 return
 
-            await interaction.response.send_message("Broadcasting message...", ephemeral=True)
+            await ctx.send("Broadcasting message...", ephemeral=True)
             
             success_count = 0
             fail_count = 0
@@ -518,7 +516,7 @@ class Admin(commands.Cog):
                     "------------------------\n"
                 )
                 if not anonymous:
-                    broadcast_message += f"*Sent by {interaction.user.name}*"
+                    broadcast_message += f"*Sent by {ctx.user.name}*"
             
             file = None
             file_data = None
@@ -528,7 +526,7 @@ class Admin(commands.Cog):
                     file = await attachment.to_file()
                 except Exception as e:
                     log.error(f"Error downloading attachment: {str(e)}")
-                    await interaction.followup.send("An error occurred while downloading the attachment. Only the text message will be sent.", ephemeral=True)
+                    await ctx.send("An error occurred while downloading the attachment. Only the text message will be sent.", ephemeral=True)
             
             for channel_id in channels:
                 try:
@@ -575,18 +573,17 @@ class Admin(commands.Cog):
                 if len(failed_channels) > 10:
                     result_message += f"\n... and {len(failed_channels) - 10} more"
             
-            await interaction.followup.send(result_message, ephemeral=True)
+            await ctx.send(result_message, ephemeral=True)
                 
         except Exception as e:
             log.error(f"Error in broadcast: {str(e)}")
-            await interaction.response.send_message("An error occurred while executing the command. Please try again later.", ephemeral=True)
+            await ctx.send("An error occurred while executing the command. Please try again later.", ephemeral=True)
 
-    @app_commands.command(name="broadcast_dm", description="Send a DM broadcast to specific users")
-    @app_commands.checks.has_any_role(*settings.root_role_ids)
-    @log_admin_command()
+    @admin.command(name="broadcast_dm", description="Send a DM broadcast to specific users")
+    @checks.is_superuser()
     async def broadcast_dm(
         self, 
-        interaction: discord.Interaction["BallsDexBot"], 
+        ctx: commands.Context["BallsDexBot"], 
         message: str,
         user_ids: str,
         anonymous: bool = False
@@ -601,10 +598,10 @@ class Admin(commands.Cog):
         try:
             user_id_list = [uid.strip() for uid in user_ids.split(",")]
             if not user_id_list:
-                await interaction.response.send_message("Please provide at least one user ID.", ephemeral=True)
+                await ctx.send("Please provide at least one user ID.", ephemeral=True)
                 return
 
-            await interaction.response.send_message("Starting DM broadcast...", ephemeral=True)
+            await ctx.send("Starting DM broadcast...", ephemeral=True)
             
             success_count = 0
             fail_count = 0
@@ -617,7 +614,7 @@ class Admin(commands.Cog):
                 "------------------------\n"
             )
             if not anonymous:
-                dm_message += f"*Sent by {interaction.user.name}*"
+                dm_message += f"*Sent by {ctx.user.name}*"
             
             for user_id in user_id_list:
                 try:
@@ -639,11 +636,12 @@ class Admin(commands.Cog):
                 if len(failed_users) > 10:
                     result_message += f"\n... and {len(failed_users) - 10} more"
             
-            await interaction.followup.send(result_message, ephemeral=True)
+            await ctx.send(result_message, ephemeral=True)
                 
         except Exception as e:
             log.error(f"Error in broadcast_dm: {str(e)}")
             try:
-                await interaction.followup.send("An error occurred while executing the command. Please try again later.", ephemeral=True)
+                await ctx.send("An error occurred while executing the command. Please try again later.", ephemeral=True)
             except Exception:
                 pass
+'''
