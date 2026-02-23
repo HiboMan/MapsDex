@@ -1193,3 +1193,44 @@ class Balls(app_commands.Group):
         await interaction.followup.send(summary, ephemeral=True)
         
         return {"summary_message": f"Farm detection complete: {len(qualifying_guilds)} {'server' if len(qualifying_guilds) == 1 else 'servers'} blacklisted, {total_transferred} {settings.collectible_name if total_transferred == 1 else settings.plural_collectible_name} transferred to escrow"}
+
+    @app_commands.command()
+    @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
+    @log_admin_command()
+    async def rarity(
+        self,
+        interaction: discord.Interaction["BallsDexBot"],
+        include_disabled: bool = False,
+    ):
+        """
+        Generate a list of countryballs ranked by rarity.
+
+        Parameters
+        ----------
+        include_disabled: bool
+            Include the countryballs that are disabled or with a rarity of 0.
+        """
+        text = ""
+        balls_queryset = Ball.all().order_by("rarity")
+        if not include_disabled:
+            balls_queryset = balls_queryset.filter(rarity__gt=0, enabled=True)
+        sorted_balls = await balls_queryset  # ordered by rarity ascending
+        
+        groups = defaultdict(list)  # preserves insertion order on iteration
+        for ball in sorted_balls:
+            groups[ball.rarity].append(ball)
+
+        tier = 1
+        lines = []
+        for _, chunk in groups.items():  # iterates in first-seen rarity order
+            lines.append(f"T{tier}:")
+            for b in chunk:
+                lines.append(f"{b.country}")  # no numbering
+            lines.append("")
+            tier += 1
+        text = "\n".join(lines).rstrip()
+
+        source = TextPageSource(text, prefix="```md\n", suffix="```")
+        pages = Pages(source=source, interaction=interaction, compact=True)
+        pages.remove_item(pages.stop_pages)
+        await pages.start(ephemeral=True)
