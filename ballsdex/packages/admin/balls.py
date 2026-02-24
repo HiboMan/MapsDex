@@ -854,6 +854,7 @@ async def balls_farms(ctx: commands.Context[BallsDexBot]):
             super().__init__(timeout=120)
             self.page = 0
             self.punished = False
+            self.message: discord.Message | None = None
             if len(embeds) <= 1:
                 self.remove_item(self.prev_page)
                 self.remove_item(self.next_page)
@@ -945,4 +946,5 @@ async def balls_farms(ctx: commands.Context[BallsDexBot]):
             )
             await interaction.followup.send(summary, ephemeral=True)
 
-    await ctx.send(embed=embeds[0], view=FarmPunishView())
+    view = FarmPunishView()
+    view.message = await ctx.send(embed=embeds[0], view=view)
