@@ -45,6 +45,7 @@ class EmbedPaginator(discord.ui.View):
         self.embeds = embeds
         self.user_id = user_id
         self.page = 0
+        self.message: discord.Message | None = None
         if compact:
             self.remove_item(self.first_page)
             self.remove_item(self.last_page)
@@ -1055,7 +1056,8 @@ class Balls(commands.GroupCog, group_name=settings.balls_slash_name):
 
         embed2.set_footer(text="Page 2/2")
 
-        await interaction.followup.send(embed=embed, view=EmbedPaginator([embed, embed2], interaction.user.id, compact=True))
+        view = EmbedPaginator([embed, embed2], interaction.user.id, compact=True)
+        view.message = await interaction.followup.send(embed=embed, view=view)
 
     @app_commands.command()
     @app_commands.checks.cooldown(1, 20, key=lambda i: i.user.id)
@@ -1141,7 +1143,9 @@ class Balls(commands.GroupCog, group_name=settings.balls_slash_name):
                     embed.add_field(name=f"∥ T{tier}", value=chunk, inline=False)
                     embed.set_footer(text=f"Page {i+1}/{len(chunks)}")
                     embeds.append(embed)
-                await interaction.response.send_message(embed=embeds[0], view=EmbedPaginator(embeds, interaction.user.id))
+                view = EmbedPaginator(embeds, interaction.user.id)
+                await interaction.response.send_message(embed=embeds[0], view=view)
+                view.message = await interaction.original_response()
             return
 
         all_entries = []
@@ -1194,4 +1198,6 @@ class Balls(commands.GroupCog, group_name=settings.balls_slash_name):
         if len(pages) == 1:
             await interaction.response.send_message(embed=pages[0])
         else:
-            await interaction.response.send_message(embed=pages[0], view=EmbedPaginator(pages, interaction.user.id))
+            view = EmbedPaginator(pages, interaction.user.id)
+            await interaction.response.send_message(embed=pages[0], view=view)
+            view.message = await interaction.original_response()
