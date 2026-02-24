@@ -1,5 +1,4 @@
 import logging
-from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
 import discord
@@ -26,7 +25,7 @@ from settings.models import settings
 from .balls import balls as balls_group
 from .blacklist import blacklist as blacklist_group
 from .blacklist import blacklistguild as blacklist_guild_group
-from .flags import RarityFlags, StatusFlags
+from .flags import StatusFlags
 from .history import history as history_group
 from .info import info as info_group
 from .logs import logs as logs_group
@@ -251,38 +250,6 @@ class Admin(commands.Cog):
                 "logs for info.\nTo enable trades again, the bot owner must use the "
                 f'"{prefix}reload trade" command.'
             )
-
-    @admin.command()
-    @checks.has_permissions("bd_models.view_ball")
-    async def rarity(self, ctx: commands.Context["BallsDexBot"], *, flags: RarityFlags):
-        """
-        Generate a list of countryballs ranked by rarity.
-        """
-        text = ""
-        balls_queryset = Ball.objects.all().order_by("rarity")
-        if not flags.include_disabled:
-            balls_queryset = balls_queryset.filter(rarity__gt=0, enabled=True)
-        sorted_balls = [x async for x in balls_queryset]
-
-        if flags.chunked:
-            indexes: dict[float, list[Ball]] = defaultdict(list)
-            for ball in sorted_balls:
-                indexes[ball.rarity].append(ball)
-            i = 1
-            for chunk in indexes.values():
-                for ball in chunk:
-                    text += f"{i}. {ball.country}\n"
-                i += len(chunk)
-        else:
-            for i, ball in enumerate(sorted_balls, start=1):
-                text += f"{i}. {ball.country}\n"
-
-        view = discord.ui.LayoutView()
-        text_display = discord.ui.TextDisplay("")
-        view.add_item(text_display)
-        menu = Menu(self.bot, view, TextSource(text, prefix="```md\n", suffix="```"), TextFormatter(text_display))
-        await menu.init()
-        await ctx.send(view=view)
 
     @admin.command()
     @checks.is_superuser()
