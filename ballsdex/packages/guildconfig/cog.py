@@ -48,11 +48,17 @@ class Config(commands.GroupCog):
         channel: discord.TextChannel
             The channel you want to set, current one if not specified.
         """
-        
         assert interaction.guild is not None
-        if interaction.guild.member_count < 15:
+        guild: discord.Guild = interaction.guild
+
+        if self.bot.intents.members:
+            human_count = sum(1 for member in guild.members if not member.bot)
+        else:
+            human_count = guild.member_count or 0
+
+        if human_count < 15:
             await interaction.response.send_message(
-                "You don't have 15 members.", 
+                "This server lacks at least 15 members.",
                 ephemeral=True
             )
             return
@@ -64,14 +70,13 @@ class Config(commands.GroupCog):
                 channel = interaction.channel
             else:
                 await interaction.response.send_message(
-                    "The current channel is not a valid text channel.", ephemeral=True
+                    "The current channel is not a valid text channel.", 
+                    ephemeral=True
                 )
                 return
 
         view = AcceptTOSView(interaction, channel, user)
         embed = activation_embed.copy()
-
-        guild = interaction.guild
 
         if guild.unavailable:
             await interaction.response.send_message(
@@ -81,7 +86,11 @@ class Config(commands.GroupCog):
             )
             return
 
-        readable_channels = len([x for x in guild.text_channels if x.permissions_for(guild.me).read_messages])
+        readable_channels = len([
+            x for x in guild.text_channels 
+            if x.permissions_for(guild.me).read_messages
+        ])
+
         if readable_channels / len(guild.text_channels) < 0.75:
             embed.add_field(
                 name="\N{WARNING SIGN}\N{VARIATION SELECTOR-16} Warning",
@@ -95,7 +104,8 @@ class Config(commands.GroupCog):
         view.message = message
 
         await interaction.response.send_message(
-            f"The activation embed has been sent in {channel.mention}.", ephemeral=True
+            f"The activation embed has been sent in {channel.mention}.", 
+            ephemeral=True
         )
 
     # The rest of your commands (disable, status) remain unchanged
