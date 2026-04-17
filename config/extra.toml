@@ -1,7 +1,7 @@
-# Collector Package
+# Report Package
 [[ballsdex.packages]]
-location = "git+https://github.com/faye69/BallsDex-Collector-Pack.git"
-path = "collector"
+location = "git+https://github.com/Ray-Hsueh/BallsDex-Report-Pack.git"
+path = "report"
 enabled = true
 editable = false
 
@@ -9,6 +9,13 @@ editable = false
 [[ballsdex.packages]]
 location = "git+https://github.com/Ray-Hsueh/BallsDex-Broadcast-Pack.git"
 path = "broadcast"
+enabled = true
+editable = false
+
+# Collector Package
+[[ballsdex.packages]]
+location = "git+https://github.com/faye69/BallsDex-Collector-Pack.git"
+path = "collector"
 enabled = true
 editable = false
 
