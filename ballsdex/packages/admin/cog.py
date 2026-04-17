@@ -374,7 +374,7 @@ class Admin(commands.Cog):
 
     @admin.command()
     @checks.is_superuser()
-    async def say(
+    async def echo(
         self,
         ctx: commands.Context["BallsDexBot"],
         message: str,
