@@ -52,13 +52,16 @@ class Config(commands.GroupCog):
         guild: discord.Guild = interaction.guild
 
         if self.bot.intents.members:
-            human_count = sum(1 for member in guild.members if not member.bot)
+            human_count = 0
+            async for member in guild.fetch_members(limit=None):
+                if not member.bot:
+                    human_count += 1
         else:
             human_count = guild.member_count or 0
 
         if human_count < 15:
             await interaction.response.send_message(
-                "This server lacks at least 15 members.",
+                "This server needs at least 15 human members.",
                 ephemeral=True
             )
             return
