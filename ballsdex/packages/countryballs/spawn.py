@@ -154,7 +154,10 @@ class SpawnManager(BaseSpawnManager):
             return False
 
         if self.bot.intents.members:
-            human_count = sum(1 for member in guild.members if not member.bot)
+            human_count = 0
+            async for member in guild.fetch_members(limit=None):
+                if not member.bot:
+                    human_count += 1
         else:
             human_count = guild.member_count or 0
 
