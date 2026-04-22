@@ -33,11 +33,11 @@ artwork_size = [b - a for a, b in zip(*CORNERS)]
 # image viewer. There are options available to specify the ball or the special background,
 # use the "--help" flag to view all options.
 
-title_font = ImageFont.truetype(str(SOURCES_PATH / "ArsenicaTrial-Extrabold.ttf"), 170)
-capacity_name_font = ImageFont.truetype(str(SOURCES_PATH / "Bobby Jones Soft.otf"), 110)
-capacity_description_font = ImageFont.truetype(str(SOURCES_PATH / "OpenSans-Semibold.ttf"), 75)
-stats_font = ImageFont.truetype(str(SOURCES_PATH / "Bobby Jones Soft.otf"), 130)
-credits_font = ImageFont.truetype(str(SOURCES_PATH / "arial.ttf"), 40)
+title_font = ImageFont.truetype(str(SOURCES_PATH / "CF-Title.otf"), 170)
+capacity_name_font = ImageFont.truetype(str(SOURCES_PATH / "CF-CapacityN.otf"), 110)
+capacity_description_font = ImageFont.truetype(str(SOURCES_PATH / "CF-CapacityD.otf"), 75)
+stats_font = ImageFont.truetype(str(SOURCES_PATH / "CF-Stats.ttf"), 130)
+credits_font = ImageFont.truetype(str(SOURCES_PATH / "CF-Credits.ttf"), 40)
 
 credits_color_cache = {}
 
