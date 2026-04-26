@@ -27,8 +27,8 @@ enabled = true
 editable = false
 
 # Boss Package
-#[[ballsdex.packages]]
-#location = "git+https://github.com/HiboMan/BallsDex-Boss-Pack.git"
-#path = "boss"
-#enabled = true
-#editable = false
+[[ballsdex.packages]]
+location = "git+https://github.com/MoOfficial0000/BossPackageBD.git"
+path = "boss"
+enabled = true
+editable = false
