@@ -113,7 +113,6 @@ async def balls(ctx: commands.Context[BallsDexBot]):
 
 
 @balls.command()
-@commands.cooldown(1, 120, commands.BucketType.user)
 @checks.has_permissions("bd_models.add_ballinstance")
 async def spawn(ctx: commands.Context[BallsDexBot], *, flags: SpawnFlags):
     """
