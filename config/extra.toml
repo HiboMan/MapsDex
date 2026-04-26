@@ -1,34 +1,34 @@
 # Report Package
 [[ballsdex.packages]]
-location = "git+https://github.com/Ray-Hsueh/BallsDex-Report-Pack.git"
+location = "git+https://github.com/hiboman/BallsDex-Report-Pack.git"
 path = "report"
 enabled = true
 editable = false
 
 # Broadcast Package
 [[ballsdex.packages]]
-location = "git+https://github.com/Ray-Hsueh/BallsDex-Broadcast-Pack.git"
+location = "git+https://github.com/hiboman/BallsDex-Broadcast-Pack.git"
 path = "broadcast"
 enabled = true
 editable = false
 
 # Reward Package
 [[ballsdex.packages]]
-location = "git+https://github.com/faye69/BallsDex-Reward-Pack.git"
+location = "git+https://github.com/hiboman/BallsDex-Reward-Pack.git"
 path = "reward"
 enabled = true
 editable = false
 
 # Collector Package
 [[ballsdex.packages]]
-location = "git+https://github.com/faye69/BallsDex-Collector-Pack.git"
+location = "git+https://github.com/hiboman/BallsDex-Collector-Pack.git"
 path = "collector"
 enabled = true
 editable = false
 
 # Boss Package
 [[ballsdex.packages]]
-location = "git+https://github.com/MoOfficial0000/BossPackageBD.git"
+location = "git+https://github.com/hiboman/BallsDex-Boss-Pack.git"
 path = "boss"
 enabled = true
 editable = false
