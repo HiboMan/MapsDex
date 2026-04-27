@@ -32,3 +32,10 @@ location = "git+https://github.com/hiboman/BallsDex-Boss-Pack.git"
 path = "boss"
 enabled = true
 editable = false
+
+# Battle Package
+[[ballsdex.packages]]
+location = "git+https://github.com/hiboman/BallsDex-Battle-Pack.git"
+path = "battle"
+enabled = true
+editable = false
