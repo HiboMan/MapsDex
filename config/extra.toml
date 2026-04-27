@@ -39,3 +39,17 @@ location = "git+https://github.com/hiboman/BallsDex-Battle-Pack.git"
 path = "battle"
 enabled = true
 editable = false
+
+# Rarity Package
+[[ballsdex.packages]]
+location = "git+https://github.com/hiboman/BallsDex-Rarity-Pack.git"
+path = "rarity"
+enabled = true
+editable = false
+
+# Leaderboard Package
+[[ballsdex.packages]]
+location = "git+https://github.com/hiboman/BallsDex-Leaderboard-Pack.git"
+path = "leaderboard"
+enabled = true
+editable = false
