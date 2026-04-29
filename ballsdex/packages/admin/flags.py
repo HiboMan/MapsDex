@@ -1,7 +1,7 @@
 import discord
 from discord.ext.commands import FlagConverter, Range, flag
 
-from ballsdex.core.utils.transformers import BallTransform, SpecialTransform
+from ballsdex.core.utils.transformers import BallTransform, EconomyTransform, RegimeTransform, SpecialTransform
 
 
 class StatusFlags(FlagConverter):
@@ -10,13 +10,6 @@ class StatusFlags(FlagConverter):
     state: str | None = flag(description="Custom status or subtitle of the activity")
     activity_type: discord.ActivityType | None = flag(
         description="The type of activity", default=discord.ActivityType.custom
-    )
-
-
-class RarityFlags(FlagConverter):
-    chunked: bool = flag(default=True, description="Group together countryballs with the same rarity.")
-    include_disabled: bool = flag(
-        default=False, description="Include the countryballs that are disabled or with a rarity of 0."
     )
 
 
@@ -68,3 +61,27 @@ class UserTradeHistoryFlags(TradeHistoryFlags):
     countryball: BallTransform | None = flag(description="The countryball you want to filter the history by")
     user2: discord.User | None = flag(description="The second user you want to check the history of")
     special: SpecialTransform | None = flag(description="The special you want to filter the history by")
+
+
+class CreateFlags(FlagConverter):
+    name: Range[str, None, 48] = flag(description="The name of the countryball", aliases=["country"])
+    health: int = flag(description="The health of the countryball")
+    attack: int = flag(description="The attack of the countryball")
+    rarity: float = flag(description="The rarity of the countryball, if enabled")
+    emoji_id: Range[str, 17, 21] = flag(description="Emoji ID of this countryball.")
+    credits: Range[str, None, 64] = flag(description="Authors of wild card and collection card")
+    capacity_name: Range[str, None, 64] = flag(description="Name of the countryball's capacity")
+    capacity_description: Range[str, None, 256] = flag(description="Description of the countryball's capacity")
+    enabled: bool = flag(description="Type 'no' if you don't want this countryball to spawn.", default=True)
+    tradeable: bool = flag(
+        description="Type 'no' if you don't want this countryball to be traded with others.", default=True
+    )
+    regime: RegimeTransform = flag(description="Political regime of this countryball")
+    economy: EconomyTransform | None = flag(description="Economical regime of this countryball", default=None)
+
+
+class RarityFlags(FlagConverter):
+    chunked: bool = flag(default=True, description="Group together countryballs with the same rarity.")
+    include_disabled: bool = flag(
+        default=False, description="Include the countryballs that are disabled or with a rarity of 0."
+    )
