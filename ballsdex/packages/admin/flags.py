@@ -13,13 +13,6 @@ class StatusFlags(FlagConverter):
     )
 
 
-class RarityFlags(FlagConverter):
-    chunked: bool = flag(default=True, description="Group together countryballs with the same rarity.")
-    include_disabled: bool = flag(
-        default=False, description="Include the countryballs that are disabled or with a rarity of 0."
-    )
-
-
 class SpawnFlags(FlagConverter):
     countryball: BallTransform | None = flag(
         description="The countryball you want to spawn. Random according to rarities if not specified."
@@ -36,6 +29,9 @@ class SpawnFlags(FlagConverter):
     )
     atk_bonus: int | None = flag(description="Force the countryball to have a specific attack bonus when caught.")
     hp_bonus: int | None = flag(description="Force the countryball to have a specific health bonus when caught.")
+    tier_range: str | None = flag(
+        description="Tier range to spawn from (e.g. '2-8' for T2 to T8). Only works with random spawns."
+    )
 
 
 class GiveBallFlags(FlagConverter):
@@ -43,6 +39,10 @@ class GiveBallFlags(FlagConverter):
     special: SpecialTransform | None = flag(description="A special event to set to this card")
     health_bonus: int | None = flag(description="Force a specific health bonus percentage")
     attack_bonus: int | None = flag(description="Force a specific attack bonus percentage")
+    n: Range[int, 1, 100] = flag(
+        description="The number of countryballs to give. If no number was specified, it's 1.",
+        default=1,
+    )
 
 
 class BallsCountFlags(FlagConverter):
@@ -78,3 +78,10 @@ class CreateFlags(FlagConverter):
     )
     regime: RegimeTransform = flag(description="Political regime of this countryball")
     economy: EconomyTransform | None = flag(description="Economical regime of this countryball", default=None)
+
+
+class RarityFlags(FlagConverter):
+    chunked: bool = flag(default=True, description="Group together countryballs with the same rarity.")
+    include_disabled: bool = flag(
+        default=False, description="Include the countryballs that are disabled or with a rarity of 0."
+    )
