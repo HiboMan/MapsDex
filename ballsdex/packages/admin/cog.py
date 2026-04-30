@@ -377,7 +377,8 @@ class Admin(commands.Cog):
         self,
         ctx: commands.Context["BallsDexBot"],
         message: str,
-        channel: discord.TextChannel | discord.Thread | None = None,
+        channel: discord.TextChannel | discord.Thread | discord.VoiceChannel | discord.StageChannel | None = None,
+        channel_id: int | None = None,
     ):
         """
         Send a message as the bot to a specified channel.
@@ -386,25 +387,45 @@ class Admin(commands.Cog):
         ----------
         message: str
             The message to send
-        channel: discord.TextChannel | discord.Thread | None
-            The channel or thread to send the message to. Defaults to current channel if not specified.
+        channel: discord.TextChannel | discord.Thread | discord.VoiceChannel | discord.StageChannel | None
+            The channel to send the message to (use the picker). Defaults to current channel.
+        channel_id: int | None
+            Raw channel ID, for channels not visible in the picker.
         """
-        # Get target channel
-        target_channel = channel if channel else ctx.channel
-        
+        target_channel = None
+
+        if isinstance(channel, (discord.TextChannel, discord.Thread, discord.VoiceChannel, discord.StageChannel)):
+            target_channel = channel
+        elif channel_id is not None:
+            target_channel = self.bot.get_channel(channel_id)
+            if not target_channel:
+                try:
+                    target_channel = await self.bot.fetch_channel(channel_id)
+                except discord.NotFound:
+                    await ctx.send("The specified channel ID could not be found.", ephemeral=True)
+                    return
+                except discord.Forbidden:
+                    await ctx.send("I do not have permissions to access that channel.", ephemeral=True)
+                    return
+                except Exception as e:
+                    await ctx.send(f"An error occurred while fetching the channel: {e}", ephemeral=True)
+                    return
+        else:
+            target_channel = ctx.channel
+
         # Verify it's a valid messageable channel/thread
-        if not isinstance(target_channel, (discord.TextChannel, discord.Thread)):
+        if not isinstance(target_channel, (discord.TextChannel, discord.Thread, discord.VoiceChannel, discord.StageChannel)):
             await ctx.send(
-                "Invalid channel type. Must be a text channel or thread.", ephemeral=True
+                "Invalid channel type. Must be a text-based channel or thread.", ephemeral=True
             )
             return
         
         try:
             await target_channel.send(message)
             
-            # Get guild name safely (threads have parent channels)
-            guild_name = target_channel.guild.name if hasattr(target_channel, 'guild') else "Unknown"
-            
+            # Get guild name safely
+            guild_name = target_channel.guild.name if hasattr(target_channel, "guild") else "Unknown"
+
             await ctx.send(
                 f"Message sent to {target_channel.mention} ({guild_name})", ephemeral=True
             )
